@@ -25,5 +25,30 @@ pipeline {
                 git branch: 'main', credentialsId: 'github', url: 'https://github.com/Code-Cafe-IT/a-reddit-clone.git'
             }
         }
+        stage("Sonarqube Analysis"){
+            steps{
+                withSonarQubeEnv(credentialsId: 'SonaQube-Token') {
+                    sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Reddit-Clone-CI \
+                    -Dsonar.projectKey=Reddit-Clone-CI'''
+                }
+            }
+        }
+        stage("Quality Gate"){
+            steps{
+                script{
+                    waitForQualityGate abortPipeline: false, credentialsId: 'SonaQube-Token'
+                }
+            }
+        }
+        stage("Install Dêpndencies"){
+            steps{
+                sh "npm install"
+            }
+        }
+        stage("Trivy fs scan"){
+            steps{
+                sh "trivy fs . > trivyfs.txt"
+            }
+        }
     }
 }
