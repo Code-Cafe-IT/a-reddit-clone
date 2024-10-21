@@ -47,7 +47,7 @@ pipeline {
         }
         stage("Trivy FS Scan") {
             steps {
-                sh "trivy fs --format table -o trivyfs.txt ."
+                sh "trivy fs --cache-dir /path/to/cache --format table -o trivyfs.txt ."
             }
         }
         stage("Build & Push Docker Image") {
